@@ -129,3 +129,16 @@ dmypy.json
 # Pyre type checker
 .pyre/
 .idea/workspace.xml
+ai-dungeon-api/.chalice/deployments/
+ai-dungeon-api/.chalice/venv/
+ai-dungeon-api/deploy_dev.sh
+ai-dungeon-api/deploy_prod.sh
+
+
+ai-dungeon-api/terraform/.terraform/
+
+ai-dungeon-api/terraform/chalice.tf.json
+
+ai-dungeon-api/terraform/deployment.zip
+
+ai-dungeon-api/terraform/layer-deployment.zip

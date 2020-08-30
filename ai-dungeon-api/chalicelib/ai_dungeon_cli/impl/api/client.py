@@ -21,8 +21,6 @@ class AiDungeonApiClient:
 
 
     async def _execute_query_pseudo_async(self, query, params={}):
-        debug_print(query)
-        debug_print(params)
         async with Client(
                 transport=self.websocket,
                 # fetch_schema_from_transport=True,
@@ -31,8 +29,6 @@ class AiDungeonApiClient:
 
 
     def _execute_query(self, query, params=None):
-        debug_print(query)
-        debug_print(params)
         return self.gql_client.execute(gql(query), variable_values=params)
 
 

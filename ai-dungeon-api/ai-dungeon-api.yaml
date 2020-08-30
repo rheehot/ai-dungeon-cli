@@ -1,0 +1,236 @@
+openapi: 3.0.0
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/wesky93/ai-dungeon-api/1.0.0
+info:
+  description: this is ai dungeon wrapping api for using gpt-3
+  version: "0.0.1"
+  title: AI Dungeon API
+  contact:
+    email: wesky93@gmail.com
+tags:
+  - name: sessions
+    description: A session is a kind of room where the context is maintained when talking to gpt-3.
+  - name: scenes
+    description: |
+      This is data to pre-learn the type of response you want in the session. Required when creating a session.
+paths:
+  /sessions:
+    get:
+      tags:
+        - sessions
+      summary: search sessions
+      description: search session
+      responses:
+        '200':
+          $ref: '#/components/responses/SessionListResponse'
+    post:
+      tags:
+        - sessions
+      summary: search sessions
+      description: search session
+      requestBody:
+        $ref: '#/components/requestBodies/CreateSession'
+      responses:
+        '200':
+          $ref: '#/components/responses/SessionResponse'
+  /sessions/{session_id}:
+    get:
+      tags:
+        - sessions
+      summary: get session data
+      responses:
+        '200':
+          $ref: '#/components/responses/SessionResponse'
+        '404':
+          description: session not found
+  /sessions/{session_id}/message:
+    post:
+      tags:
+        - sessions
+      summary: send message
+      requestBody:
+        $ref: '#/components/requestBodies/SendMessage'
+      responses:
+        '200':
+          $ref: '#/components/responses/ResultMessage'
+        '404':
+          description: session not found
+  /scenes:
+    get:
+      tags:
+        - scenes
+      summary: search sessions
+      description: search session
+      responses:
+        '200':
+          $ref: '#/components/responses/SceneListResponse'
+    post:
+      tags:
+        - scenes
+      summary: search sessions
+      description: search session
+      requestBody:
+        $ref: '#/components/requestBodies/CreateScene'
+      responses:
+        '200':
+          $ref: '#/components/responses/SceneResponse'
+  /scenes/{scene_id}:
+    get:
+      tags:
+        - scenes
+      summary: get scene data
+      responses:
+        '200':
+          $ref: '#/components/responses/SceneResponse'
+        '404':
+          description: session not found
+
+
+components:
+  schemas:
+    CreateSession:
+      type: object
+      required:
+        - scene
+        - name
+      properties:
+       scene:
+         type: string
+       name:
+         type: string
+    CreateScene:
+      type: object
+      required:
+        - text
+        - name
+      properties:
+        text:
+          type: string
+        name:
+          type: string
+    Message:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+    SceneItem:
+      type: object
+      required:
+        - name
+        - text
+        - created_at
+      properties:
+        name:
+          type: string
+        text:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          example: '2016-08-29T09:12:33.001Z'
+    ScenesList:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref:  '#/components/schemas/SceneItem'
+    History:
+      type: object
+      properties:
+        name:
+          type: string
+        text:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          example: '2016-08-29T09:12:33.001Z'
+
+    SessionItem:
+      type: object
+      required:
+        - id
+        - name
+        - scene
+        - created_at
+      properties:
+        id:
+          type: string
+          example: d290f1d701748f0851
+        name:
+          type: string
+        scene:
+          type: string
+        history:
+          type: array
+          items:
+            $ref: '#/components/schemas/History'
+        created_at:
+          type: string
+          format: date-time
+          example: '2016-08-29T09:12:33.001Z'
+    SessionList:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref:  '#/components/schemas/SessionItem'
+  requestBodies:
+    CreateSession:
+      content:
+       application/json:
+          schema:
+            $ref: '#/components/schemas/CreateSession'
+    CreateScene:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CreateScene'
+    SendMessage:
+      content:
+        "application/json":
+          schema:
+            $ref: '#/components/schemas/Message'
+  responses:
+    SessionResponse:
+      description: >
+        session info
+      content:
+        "application/json":
+          schema:
+            $ref: '#/components/schemas/SessionList'
+    SessionListResponse:
+      description: >
+        list of sessions
+      content:
+        "application/json":
+          schema:
+            $ref: '#/components/schemas/SessionList'
+    SceneResponse:
+      description: >
+        session info
+      content:
+        "application/json":
+          schema:
+            $ref: '#/components/schemas/SceneItem'
+    SceneListResponse:
+      description: >
+        list of sessions
+      content:
+        "application/json":
+          schema:
+            $ref: '#/components/schemas/ScenesList'
+    ResultMessage:
+      description: >
+        return message
+      content:
+        "application/json":
+          schema:
+            $ref: '#/components/schemas/History'
+

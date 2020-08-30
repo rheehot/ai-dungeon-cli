@@ -1,0 +1,7 @@
+PyYAML >= 5.1.2
+gql >= 3.0.0a1
+pyreadline >= 2.1;platform_system=='Windows'
+chalice==1.18.1
+pynamodb==4.3.3
+shortuuid==1.0.1
+requests

@@ -1,20 +1,21 @@
-# AI Dungeon API
-
-This is basically a cli client to [play.aidungeon.io](https://play.aidungeon.io/).
-
-This allows using gpt-3!
-
-# How to use it?
-```python
 from pprint import pprint
 
 import requests
 
 host = 'https://dev.gpt-3.whatilearened.today'
 
+
+# show scene list
+
 def get_scenes():
-    scenes = requests.get(f"{host}/scenes").json()
-    pprint(scenes)
+    scenes = requests.get(f"{host}/scenes").json()['results']
+    for scen in scenes:
+        print('='*10)
+        print(scen['name'])
+        print('-' * 10)
+        print(scen['text'])
+        print('=' * 10,'\n')
+
     return scenes
 
 
@@ -24,7 +25,6 @@ def create_session(name: str, scene: str = 'qa'):
         "scene": scene,
     }
     resp = requests.post(f"{host}/sessions", json=data).json()
-    pprint(resp)
     session_id = resp['id']
 
     def send_msg(msg):
@@ -50,8 +50,7 @@ def add_scene(name, text):
     }
     try:
         resp = requests.post(f"{host}/scenes", json=data).json()
-        pprint(resp)
-
+        print(f'add {name} scene')
     except Exception as e:
         print(e)
 
@@ -62,8 +61,9 @@ def delete_scene(name):
         print(result.text)
     except Exception as e:
         print(e)
-if __name__ == '__main__':
 
+
+def main():
     get_scenes()
     name = 'test1'
     send_msg, show_history = create_session(name)
@@ -78,5 +78,73 @@ if __name__ == '__main__':
     print(f'\n\n{"#" * 6} print all history {"#" * 6}')
     pprint(show_history())
 
-```
-[show more samples](sample.py)
+
+def custom_scene():
+    # add custom scene
+    new_scene = 'Make-Flask-Code'
+    new_scene_text = """
+
+Q: make return hello world app
+
+CODE:
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/')
+def hello_world():
+    return 'Hello, World!'
+
+
+Q: make request x,y and return x+y app 
+
+CODE:
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/{x}/{y}')
+def sum_num():
+    return x+y
+
+
+Q: make get list of services app 
+
+CODE:
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/services')
+def list_services():
+    services = ['a','b']
+    return services
+
+
+Q: get list of people names app
+
+CODE:
+from flask import Flask
+app = Flask(__name__)
+
+@app.route('/peoples')
+def list_names():
+    names = ['sinsky','kendra']
+    return names
+    
+
+"""
+    add_scene(new_scene, new_scene_text)
+    get_scenes()
+    name = 'test2'
+    send_msg, show_history = create_session(name, scene=new_scene)
+    show_history()
+
+    q = 'Q: make return bye app\n'
+    print(q)
+    send_msg(q)
+
+    print('\n\nfinish request')
+    delete_scene(new_scene)
+
+
+if __name__ == '__main__':
+    main()
+    custom_scene()

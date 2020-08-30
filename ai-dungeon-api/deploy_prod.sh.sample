@@ -1,0 +1,5 @@
+export AWS_DEFAULT_REGION=ap-northeast-2
+export AI_ACCESS_TOKEN=<AI_ACCESS_TOKEN>
+export TOKEN_VAR="AI_ACCESS_TOKEN="$AI_ACCESS_TOKEN
+chalice package --pkg-format terraform --stage prod ./terraform/
+cd terraform && terraform workspace select prod && terraform apply -var=$TOKEN_VAR  && cd ..
