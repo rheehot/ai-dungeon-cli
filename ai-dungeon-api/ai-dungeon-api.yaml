@@ -156,7 +156,7 @@ components:
       required:
         - id
         - name
-        -prompt
+        - prompt
         - created_at
       properties:
         id:
