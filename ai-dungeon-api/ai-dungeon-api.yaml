@@ -61,16 +61,16 @@ paths:
     get:
       tags:
         - prompts
-      summary: search sessions
-      description: search session
+      summary: search prompts
+      description: search prompts
       responses:
         '200':
           $ref: '#/components/responses/PromptListResponse'
     post:
       tags:
         - prompts
-      summary: search sessions
-      description: search session
+      summary: add prompt
+      description: add prompt
       requestBody:
         $ref: '#/components/requestBodies/CreatePrompt'
       responses:
@@ -86,14 +86,18 @@ paths:
           $ref: '#/components/responses/PromptResponse'
         '404':
           description: session not found
-
+    delete:
+      summary: delete prompt
+      responses:
+        '200':
+          description: delete prompt
 
 components:
   schemas:
     CreateSession:
       type: object
       required:
-        -prompt
+        - prompt
         - name
       properties:
        prompt:
