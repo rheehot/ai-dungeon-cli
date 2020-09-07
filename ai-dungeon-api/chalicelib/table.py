@@ -7,7 +7,7 @@ from pynamodb.attributes import ListAttribute, MapAttribute, UTCDateTimeAttribut
 from pynamodb.models import Model
 
 SessionDB = os.environ.get('SessionDB', 'ai-session-db-dev')
-SceneDB = os.environ.get('SceneDB', 'ai-scene-db-dev')
+PromptDB = os.environ.get('PromptDB', 'ai-prompt-db-dev')
 
 
 class BaseModel(Model):
@@ -42,9 +42,9 @@ class BaseModel(Model):
             return attr
 
 
-class Scene(BaseModel):
+class Prompt(BaseModel):
     class Meta:
-        table_name = SceneDB
+        table_name = PromptDB
         region = 'ap-northeast-2'
 
     name = UnicodeAttribute(hash_key=True)
@@ -74,15 +74,15 @@ class History(MapAttribute):
         )
 
     @classmethod
-    def from_scene(cls, id: str, text: str, **kwargs):
+    def from_prompt(cls, id: str, text: str, **kwargs):
         return cls(
             id=id,
             text=text,
-            history_by='scene'
+            history_by='prompt'
         )
 
     @classmethod
-    def from_scene_ai(cls, id: str, text: str, **kwargs):
+    def from_prompt_ai(cls, id: str, text: str, **kwargs):
         return cls(
             id=id,
             text=text,
@@ -100,12 +100,12 @@ class Session(BaseModel):
     id = UnicodeAttribute(hash_key=True, default_for_new=shortuuid.uuid)
     name = UnicodeAttribute()
     adventure_id = UnicodeAttribute()
-    scene = UnicodeAttribute()
+    prompt = UnicodeAttribute()
     history = ListAttribute(of=History, default=list)
     created_at = UTCDateTimeAttribute(default_for_new=datetime.utcnow)
 
 
-DEFAULT_SCENE = {
+DEFAULT_PROMPT = {
     "qa": """
 Q: What happens when you get the coronavirus disease?
 A: People with COVID-19 generally develop signs and symptoms, including mild respiratory symptoms and fever, on an average of 5-6 days after infection (mean incubation period 5-6 days, range 1-14 days). Most people infected with COVID-19 virus have mild disease and recover.
@@ -121,19 +121,34 @@ A: The self parameter is a reference to the current instance of the class, and i
 
 Q: What part of the brain controls speech?
 A: Damage to a discrete part of the brain in the left frontal lobe (Broca's area) of the language-dominant hemisphere has been shown to significantly affect the use of spontaneous speech and motor speech control.
+""",
+    "example-sentence":"""Word: book
+Sentence: I like reading book!
+
+
+Word: robot 
+Sentence: I make robot.
+
+
+Word: macbook
+Sentence: I will bye macbook.
+
+
+Word: home
+Sentence: I'm go home
 """
 }
 
 
-def init_default_scene():
-    for name, text in DEFAULT_SCENE.items():
-        Scene(
+def init_default_prompt():
+    for name, text in DEFAULT_PROMPT.items():
+        Prompt(
             name=name,
             text=text
         ).save()
 
 
 if __name__ == '__main__':
-    # init default scene
-    # init_default_scene()
-    print([ s.to_dict() for s in Scene.scan()])
+    # init default prompt
+    init_default_prompt()
+    print([s.to_dict() for s in Prompt.scan()])

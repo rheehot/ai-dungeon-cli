@@ -1,12 +1,14 @@
 from typing import List, TypedDict
 
-from chalicelib.ai_dungeon_cli.impl.utils.debug_print import debug_print
 from chalicelib.ai_dungeon_cli.impl.api.client import AiDungeonApiClient
+from chalicelib.ai_dungeon_cli.impl.utils.debug_print import debug_print
+
 
 class ActionHistory(TypedDict):
-    id:str
-    text:str
-    __typename:str
+    id: str
+    text: str
+    __typename: str
+
 
 class AiSessionApiClient(AiDungeonApiClient):
 
@@ -27,7 +29,7 @@ class AiSessionApiClient(AiDungeonApiClient):
         debug_print(result)
         return result['createAdventureFromScenarioId']
 
-    def _add_story(self,adventure_id:str,text:str):
+    def _add_story(self, adventure_id: str, text: str):
         result = self._execute_query('''
                mutation ($input: ContentActionInput) {  sendAction(input: $input) {    id    actionLoading    memory    died    gameState    newQuests {      id      text      completed      active      __typename    }    actions {      id      text      __typename    }    __typename  }}
                ''',
@@ -41,12 +43,13 @@ class AiSessionApiClient(AiDungeonApiClient):
         debug_print(result)
         return result['sendAction']
 
-    def add_story(self,adventure_id:str,text:str)->List[ActionHistory]:
-        result = self._add_story(adventure_id,text)
+    def add_story(self, adventure_id: str, text: str) -> List[ActionHistory]:
+        result = self._add_story(adventure_id, text)
         return result['actions'][-2:]
 
-
-
-
-
-
+    def get_user_info(self):
+        result = self._execute_query('''
+        query { user {   id  gameSettings {  id  modelType  textSpeed    textSize    textFont     accessibilityMode   __typename    }  __typename  } }
+        ''')
+        print(result)
+        return result

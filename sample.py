@@ -2,27 +2,27 @@ from pprint import pprint
 
 import requests
 
-host = 'https://dev.gpt-3.whatilearened.today'
+host = 'https://prod.gpt-3.whatilearened.today'
 
 
-# show scene list
+# show prompt list
 
-def get_scenes():
-    scenes = requests.get(f"{host}/scenes").json()['results']
-    for scen in scenes:
+def get_prompts():
+    prompts = requests.get(f"{host}/prompts").json()['results']
+    for scen in prompts:
         print('='*10)
         print(scen['name'])
         print('-' * 10)
         print(scen['text'])
         print('=' * 10,'\n')
 
-    return scenes
+    return prompts
 
 
-def create_session(name: str, scene: str = 'qa'):
+def create_session(name: str, prompt: str = 'qa'):
     data = {
         "name": name,
-        "scene": scene,
+        "prompt": prompt,
     }
     resp = requests.post(f"{host}/sessions", json=data).json()
     session_id = resp['id']
@@ -43,28 +43,28 @@ def create_session(name: str, scene: str = 'qa'):
     return send_msg, show_history
 
 
-def add_scene(name, text):
+def add_prompt(name, text):
     data = {
         "text": text,
         "name": name,
     }
     try:
-        resp = requests.post(f"{host}/scenes", json=data).json()
-        print(f'add {name} scene')
+        resp = requests.post(f"{host}/prompts", json=data).json()
+        print(f'add {name} prompt')
     except Exception as e:
         print(e)
 
 
-def delete_scene(name):
+def delete_prompt(name):
     try:
-        result = requests.delete(f"{host}/scenes/{name}")
+        result = requests.delete(f"{host}/prompts/{name}")
         print(result.text)
     except Exception as e:
         print(e)
 
 
 def main():
-    get_scenes()
+    get_prompts()
     name = 'test1'
     send_msg, show_history = create_session(name)
 
@@ -79,72 +79,43 @@ def main():
     pprint(show_history())
 
 
-def custom_scene():
-    # add custom scene
-    new_scene = 'Make-Flask-Code'
-    new_scene_text = """
-
-Q: make return hello world app
-
-CODE:
-from flask import Flask
-app = Flask(__name__)
-
-@app.route('/')
-def hello_world():
-    return 'Hello, World!'
+def custom_prompt():
+    # add custom prompt
+    new_prompt = 'word2text'
+    new_prompt_text = """Word: piano
+Text: I love piano!
 
 
-Q: make request x,y and return x+y app 
-
-CODE:
-from flask import Flask
-app = Flask(__name__)
-
-@app.route('/{x}/{y}')
-def sum_num():
-    return x+y
+Word: robot 
+Text: I make robot. 
 
 
-Q: make get list of services app 
-
-CODE:
-from flask import Flask
-app = Flask(__name__)
-
-@app.route('/services')
-def list_services():
-    services = ['a','b']
-    return services
+Word: happy 
+Text: I'm so happy!
 
 
-Q: get list of people names app
+Word: macbook
+Text: I will bye macbook.
 
-CODE:
-from flask import Flask
-app = Flask(__name__)
 
-@app.route('/peoples')
-def list_names():
-    names = ['sinsky','kendra']
-    return names
-    
+Word: home
+Text: I'm go home
+
 
 """
-    add_scene(new_scene, new_scene_text)
-    get_scenes()
+    add_prompt(new_prompt, new_prompt_text)
     name = 'test2'
-    send_msg, show_history = create_session(name, scene=new_scene)
+    send_msg, show_history = create_session(name, prompt=new_prompt)
     show_history()
 
-    q = 'Q: make return bye app\n'
+    q = 'Word: book\n'
     print(q)
     send_msg(q)
 
     print('\n\nfinish request')
-    delete_scene(new_scene)
+    delete_prompt(new_prompt)
 
 
 if __name__ == '__main__':
     main()
-    custom_scene()
+    custom_prompt()

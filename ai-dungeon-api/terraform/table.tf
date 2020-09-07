@@ -1,5 +1,5 @@
-resource "aws_dynamodb_table" "scene" {
-  name = "ai-scene-db-${data.null_data_source.chalice.inputs.stage}"
+resource "aws_dynamodb_table" "prompt" {
+  name = "ai-prompt-db-${data.null_data_source.chalice.inputs.stage}"
   billing_mode = "PAY_PER_REQUEST"
   hash_key = "name"
 

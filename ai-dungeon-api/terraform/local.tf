@@ -7,7 +7,7 @@ variable "AI_ACCESS_TOKEN" {
 locals {
   variables = {
     SessionDB = aws_dynamodb_table.session.name
-    SceneDB = aws_dynamodb_table.scene.name
+    PromptDB = aws_dynamodb_table.prompt.name
     AI_ACCESS_TOKEN = var.AI_ACCESS_TOKEN
     CHALICE_STAGE = data.null_data_source.chalice.inputs.stage
   }

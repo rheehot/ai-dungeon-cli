@@ -4,7 +4,7 @@ from typing import List
 from chalice import Chalice, Response
 
 from chalicelib.api import AiSessionApiClient
-from chalicelib.table import DEFAULT_SCENE, History, Scene, Session
+from chalicelib.table import DEFAULT_PROMPT, History, Prompt, Session
 
 AI_ACCESS_TOKEN = os.environ.get('AI_ACCESS_TOKEN')
 app = Chalice(app_name='ai-dungeon-api')
@@ -14,16 +14,16 @@ class AiSession():
     def __init__(self, access_token: str):
         self.api = AiSessionApiClient(access_token)
 
-    def create_session(self, name: str, scene_name: str) -> Session:
+    def create_session(self, name: str, prompt_name: str) -> Session:
         session = Session()
         session.name = name
         session.adventure_id = self.api.create_session()['id']
-        scene = Scene.get(scene_name)
-        session.scene = scene_name
-        actions = self.api.add_story(session.adventure_id, scene.text)
+        prompt= Prompt.get(prompt_name)
+        session.prompt = prompt_name
+        actions = self.api.add_story(session.adventure_id, prompt.text)
         session.history = [
-            History.from_scene(**actions[0]),
-            History.from_scene_ai(**actions[1]),
+            History.from_prompt(**actions[0]),
+            History.from_prompt_ai(**actions[1]),
         ]
         session.save()
         return session
@@ -71,11 +71,11 @@ def create_session():
     session_api = AiSession(AI_ACCESS_TOKEN)
     data = app.current_request.json_body
 
-    required_fields = ['scene', 'name']
+    required_fields = ['prompt', 'name']
     resp = check_required_fields(required_fields, data)
     if resp:
         return resp
-    session = session_api.create_session(data['name'], data['scene'])
+    session = session_api.create_session(data['name'], data['prompt'])
     return session.to_dict()
 
 
@@ -111,60 +111,64 @@ def send_msg(session_id):
     return result['history'][-1]
 
 
-@app.route('/scenes', methods=['POST'])
-def create_scene():
+@app.route('/prompts', methods=['POST'])
+def create_prompt():
     data = app.current_request.json_body
     required_fields = ['text', 'name']
     resp = check_required_fields(required_fields, data)
     if resp:
         return resp
     try:
-        Scene.get(data['name'])
+        Prompt.get(data['name'])
         return Response(
             status_code=400,
-            body=f'Duplicated scene name : {data["name"]}'
+            body=f'Duplicated prompt name : {data["name"]}'
         )
-    except Scene.DoesNotExist:
-        scene = Scene()
-        scene.name = data['name']
-        scene.text = data['text']
-        scene.save()
-        return scene.to_dict()
+    except Prompt.DoesNotExist:
+        prompt = Prompt()
+        prompt.name = data['name']
+        prompt.text = data['text']
+        prompt.save()
+        return prompt.to_dict()
 
 
-@app.route('/scenes', methods=['GET'])
-def list_scenes():
+@app.route('/prompts', methods=['GET'])
+def list_prompts():
     return {
-        "results": [s.to_dict() for s in Scene.scan()]
+        "results": [s.to_dict() for s in Prompt.scan()]
     }
 
 
-def get_scene_or_404(name: str):
+def get_prompt_or_404(name: str):
     try:
-        scene = Scene.get(name)
-    except Scene.DoesNotExist:
+        prompt = Prompt.get(name)
+    except Prompt.DoesNotExist:
         return Response(
             status_code=404,
-            body=f'can not find {name} scene'
+            body=f'can not find {name} prompt'
         )
-    return scene
+    return prompt
 
 
-@app.route('/scenes/{name}', methods=['GET'])
-def get_scene(name):
-    scene = get_scene_or_404(name)
-    if isinstance(scene, Response):
-        return scene
-    return scene.to_dict()
+@app.route('/prompts/{name}', methods=['GET'])
+def get_prompt(name):
+    prompt = get_prompt_or_404(name)
+    if isinstance(prompt, Response):
+        return prompt
+    return prompt.to_dict()
 
 
-@app.route('/scenes/{name}', methods=["DELETE"])
-def delete_scene(name):
-    if name in DEFAULT_SCENE:
+@app.route('/prompts/{name}', methods=["DELETE"])
+def delete_prompt(name):
+    if name in DEFAULT_PROMPT:
         return Response(status_code=400,
-                        body='you can not delete default scene')
-    scene = get_scene_or_404(name)
-    if isinstance(scene, Response):
-        return scene
-    scene.delete()
-    return Response(status_code=200,body=f'delete {name} scene')
+                        body='you can not delete default prompt')
+    prompt = get_prompt_or_404(name)
+    if isinstance(prompt, Response):
+        return prompt
+    prompt.delete()
+    return Response(status_code=200,body=f'delete {name} prompt')
+
+if __name__ == '__main__':
+   session = AiSession(AI_ACCESS_TOKEN)
+   session.api.get_user_info()

@@ -12,7 +12,7 @@ info:
 tags:
   - name: sessions
     description: A session is a kind of room where the context is maintained when talking to gpt-3.
-  - name: scenes
+  - name: prompts
     description: |
       This is data to pre-learn the type of response you want in the session. Required when creating a session.
 paths:
@@ -57,33 +57,33 @@ paths:
           $ref: '#/components/responses/ResultMessage'
         '404':
           description: session not found
-  /scenes:
+  /prompts:
     get:
       tags:
-        - scenes
+        - prompts
       summary: search sessions
       description: search session
       responses:
         '200':
-          $ref: '#/components/responses/SceneListResponse'
+          $ref: '#/components/responses/PromptListResponse'
     post:
       tags:
-        - scenes
+        - prompts
       summary: search sessions
       description: search session
       requestBody:
-        $ref: '#/components/requestBodies/CreateScene'
+        $ref: '#/components/requestBodies/CreatePrompt'
       responses:
         '200':
-          $ref: '#/components/responses/SceneResponse'
-  /scenes/{scene_id}:
+          $ref: '#/components/responses/PromptResponse'
+  /prompts/{prompt_id}:
     get:
       tags:
-        - scenes
-      summary: get scene data
+        - prompts
+      summary: get prompt data
       responses:
         '200':
-          $ref: '#/components/responses/SceneResponse'
+          $ref: '#/components/responses/PromptResponse'
         '404':
           description: session not found
 
@@ -93,14 +93,14 @@ components:
     CreateSession:
       type: object
       required:
-        - scene
+        -prompt
         - name
       properties:
-       scene:
+       prompt:
          type: string
        name:
          type: string
-    CreateScene:
+    CreatePrompt:
       type: object
       required:
         - text
@@ -117,7 +117,7 @@ components:
       properties:
         message:
           type: string
-    SceneItem:
+    PromptItem:
       type: object
       required:
         - name
@@ -132,13 +132,13 @@ components:
           type: string
           format: date-time
           example: '2016-08-29T09:12:33.001Z'
-    ScenesList:
+    PromptsList:
       type: object
       properties:
         results:
           type: array
           items:
-            $ref:  '#/components/schemas/SceneItem'
+            $ref:  '#/components/schemas/PromptItem'
     History:
       type: object
       properties:
@@ -156,7 +156,7 @@ components:
       required:
         - id
         - name
-        - scene
+        -prompt
         - created_at
       properties:
         id:
@@ -164,7 +164,7 @@ components:
           example: d290f1d701748f0851
         name:
           type: string
-        scene:
+        prompt:
           type: string
         history:
           type: array
@@ -187,11 +187,11 @@ components:
        application/json:
           schema:
             $ref: '#/components/schemas/CreateSession'
-    CreateScene:
+    CreatePrompt:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/CreateScene'
+            $ref: '#/components/schemas/CreatePrompt'
     SendMessage:
       content:
         "application/json":
@@ -212,20 +212,20 @@ components:
         "application/json":
           schema:
             $ref: '#/components/schemas/SessionList'
-    SceneResponse:
+    PromptResponse:
       description: >
         session info
       content:
         "application/json":
           schema:
-            $ref: '#/components/schemas/SceneItem'
-    SceneListResponse:
+            $ref: '#/components/schemas/PromptItem'
+    PromptListResponse:
       description: >
         list of sessions
       content:
         "application/json":
           schema:
-            $ref: '#/components/schemas/ScenesList'
+            $ref: '#/components/schemas/PromptsList'
     ResultMessage:
       description: >
         return message
